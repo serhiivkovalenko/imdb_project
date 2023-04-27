@@ -1,4 +1,6 @@
 from pathlib import Path
+
+
 def read_data(spark_session, file_path):
 
     return (spark_session.read.csv(file_path,
