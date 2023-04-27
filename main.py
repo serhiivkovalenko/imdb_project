@@ -1,6 +1,6 @@
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
-import pyspark.sql.types as t
+from task1 import task1
 
 
 def main():
@@ -9,17 +9,7 @@ def main():
                                  .appName("IMDB")
                                  .config(conf=SparkConf())
                                  .getOrCreate())
-
-    data = [('a', 1), ('b', 2)]
-    schema = t.StructType([
-        t.StructField("name", t.StringType(), True),
-        t.StructField("age", t.IntegerType(), True)
-    ])
-
-    df = spark_session.createDataFrame(data, schema)
-    df.show()
-
-    # movies_df = spark_session.read.csv(path)
+    task1(spark_session)
 
 
 if __name__ == "__main__":
