@@ -12,7 +12,8 @@ def task2(spark_session):
     # df = df.withColumn("birthYear", df["birthYear"].cast(IntegerType()))
     # born_in_1800 = df.filter((col("birthYear") > 1800) & (col("birthYear") <= 1900)).select("primaryName")
     df.show()
-    write_data(df, "task2.csv")
+    # write_data(df, "task2.csv")
+    write_data(df, "output/task2")
     return None
 
 

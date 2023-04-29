@@ -10,7 +10,8 @@ def task1(spark_session):
     df = read_data(spark_session, TITLE_AKAS)
     df_filter = df.select("title").where((col("region") == "UA")).orderBy("title")
     # df_filter.show()
-    write_data(df_filter, "task1.csv")
+    # write_data(df_filter, "task1.csv")
+    write_data(df_filter, "output/task1")
     return None
 
 
