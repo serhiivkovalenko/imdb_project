@@ -14,7 +14,7 @@ def task7(spark_session):
 
     df = read_data(spark_session, TITLE_BASICS)
     df1 = read_data(spark_session, TITLE_RATINGS)
-    # spark = SparkSession.builder.appName("create_empty_dataframe").getOrCreate()
+    spark = SparkSession.builder.appName("create_empty_dataframe").getOrCreate()
 
     # Создаем схему данных
     schema = StructType([
@@ -23,15 +23,13 @@ def task7(spark_session):
         StructField("averageRating", IntegerType(), True)
     ])
 
-
     # Создаем пустой DataFrame
-    empty_rdd = spark_session.sparkContext.emptyRDD()
-    empty_df = spark_session.createDataFrame(empty_rdd, schema)
+    empty_df = spark.createDataFrame([], schema)
     # Показать схему DataFrame
     # empty_df.printSchema()
 
     for x in range(187, 203):
-        s = to_str(x)+"0"
+        s = to_str(x)
         df2 = df.join(df1, df.tconst == df1.tconst, "inner")\
               .where((floor(df.startYear.cast(IntegerType())/10) <= x) &\
                      (floor(df.endYear.cast(IntegerType())/10) >= x) | \
@@ -39,7 +37,7 @@ def task7(spark_session):
                      (df.endYear == "\\N")) \
                       .select(expr(s), "originalTitle", "averageRating")\
               .orderBy(col("averageRating").desc())\
-              .limit(10)
+              .limit(50)
         # df2.show(10)
         empty_df = empty_df.union(df2)
 
