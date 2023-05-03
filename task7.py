@@ -9,7 +9,6 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 def task7(spark_session):
     """
         Get 10 titles of the most popular movies/series etc. by each decade.
-
     """
 
     df = read_data(spark_session, TITLE_BASICS)
@@ -51,6 +50,5 @@ def task7(spark_session):
     empty_df.show()
     write_data(empty_df, "output/task7")
     return None
-
 
 
