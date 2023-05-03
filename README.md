@@ -1,1 +1,3 @@
-# imdb-spark-project-3
+# imdb-spark-project
+
+## Завдання для Kharkiv IT_Cluster
