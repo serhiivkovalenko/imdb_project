@@ -1,54 +1,41 @@
 from read_write import write_data, read_data
 from settings import TITLE_BASICS
 from settings import TITLE_RATINGS
-from pyspark.sql.functions import col, asc, count, desc, expr, explode, substring, floor, to_str
+from pyspark.sql.functions import col, asc, max, desc, expr, explode, substring, split
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+from pyspark.sql.window import Window
+from pyspark.sql.functions import row_number
 
 
-def task7(spark_session):
+def task8(spark_session):
     """
-        Get 10 titles of the most popular movies/series etc. by each decade.
-
+        Get 10 titles of the most popular movies/series etc. by each genre.
+        Получите 10 наименований самых популярных фильмов/сериалов и т. д. в каждом жанре.
     """
 
     df = read_data(spark_session, TITLE_BASICS)
     df1 = read_data(spark_session, TITLE_RATINGS)
-    spark = SparkSession.builder.appName("create_empty_dataframe").getOrCreate()
+    # df.printSchema()
+    df = df.select("tconst", explode(split(df.genres, ",")).alias("genre"), "originalTitle")
 
-    # Создаем схему данных
-    schema = StructType([
-        StructField("year", StringType(), True),
-        StructField("originalTitle", StringType(), True),
-        StructField("averageRating", IntegerType(), True)
-    ])
+    df = df.join(df1, df.tconst == df1.tconst, "inner")\
+        .select("genre",  "originalTitle", "AverageRating")\
+        .groupBy("genre", "originalTitle").agg(max("AverageRating").alias("averageRating")) \
+        .orderBy(col("genre"), col("averageRating").desc())
 
-    # Создаем пустой DataFrame
-    empty_df = spark.createDataFrame([], schema)
-    # Показать схему DataFrame
-    # empty_df.printSchema()
+    df.printSchema()
 
-    for x in range(187, 203):
-        s = to_str(x)
-        df2 = df.join(df1, df.tconst == df1.tconst, "inner")\
-              .where((floor(df.startYear.cast(IntegerType())/10) <= x) &\
-                     (floor(df.endYear.cast(IntegerType())/10) >= x) | \
-                     (floor(df.startYear.cast(IntegerType()) / 10) == x) & \
-                     (df.endYear == "\\N")) \
-                      .select(expr(s), "originalTitle", "averageRating")\
-              .orderBy(col("averageRating").desc())\
-              .limit(50)
-        # df2.show(10)
-        empty_df = empty_df.union(df2)
+    windowSpec = Window.partitionBy("genre").orderBy("genre")
+    df = df.withColumn("row_number", row_number().over(windowSpec)).orderBy("genre", col("AverageRating").desc())
+    # df.show(30)
+    df = df.select("genre",  "originalTitle", "AverageRating")\
+         .where(df.row_number <= 10)
 
-     # df = df.select("tconst", explode(substring("startYear", 1, 3),substring("endYear", 1, 3)).alias('year'), "originalTitle")\
-    #     .join(df1, df.tconst == df1.tconst, "inner")\
-    #     .select(substring("startYear", 1, 3).alias('year'), "originalTitle", "averageRating")\
-    #     .groupBy("year", "originalTitle").agg(max("averageRating").alias("averageRating"))
-
-    empty_df.show()
-    write_data(empty_df, "output/task7")
+    df.show()
+    write_data(df, "output/task8")
     return None
+
 
 
 
