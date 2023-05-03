@@ -6,6 +6,7 @@ from task3 import task3
 from task4 import task4
 from task5 import task5
 from task6 import task6
+from task7 import task7
 
 
 def main():
@@ -23,8 +24,10 @@ def main():
     # task4(spark_session)
     # print("Task5")
     # task5(spark_session)
-    print("Task6")
-    task6(spark_session)
+    # print("Task6")
+    # task6(spark_session)
+    print("Task7")
+    task7(spark_session)
 
 
 if __name__ == "__main__":
